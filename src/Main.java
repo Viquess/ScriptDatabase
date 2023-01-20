@@ -4,7 +4,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 
@@ -21,6 +20,8 @@ public class Main {
         "Gentili", "Mastro", "Fasson", "Ferri", "Ramini", "Ranieri", "De Santis", "Forina", "Lusati", "Borini", "Ballina", "Terrici", "Talano");
 
         var reparti = Lists.newArrayList("Chirurgia", "Cardiologia", "Psicologia", "Odontoiatria", "Ematologia", "Dermatologia", "Podologia");
+        var esami = Lists.newArrayList("Laringoscopia", "Broncoscopia", "Esofagoscopia", "Gastroscopia", "Endoscopia", "Gastroduodenale", "Colonscopia", "Endoscopia",
+                "Isteroscopia", "Cistoscopia", "Astroscopia", "Laparoscopia", "Mediastinoscopia", "Toracoscopia", "Biopsia");
 
         var driverName = "com.mysql.cj.jdbc.Driver";
         Class.forName(driverName);
@@ -53,12 +54,13 @@ public class Main {
                 "FOREIGN KEY (FK_cfPaz) REFERENCES pazienti(cf), FOREIGN KEY (FK_idRep) REFERENCES reparti(id))");
         System.out.println("Creata la tabella ricoveri!");
 
-        statement.executeUpdate("CREATE TABLE esami (id INT AUTO_INCREMENT PRIMARY KEY, tipo VARCHAR(255) NOT NULL, esito VARCHAR(255) NOT NULL)");
+        statement.executeUpdate("CREATE TABLE esami (id INT AUTO_INCREMENT PRIMARY KEY, date VARCHAR(10) NOT NULL, tipo VARCHAR(255) NOT NULL, esito VARCHAR(255) NOT NULL, FK_cfPaz VARCHAR(16) NOT NULL," +
+                "FOREIGN KEY (FK_cfPaz) REFERENCES pazienti(cf))");
         System.out.println("Creata la tabella esami!");
 
-        for (String reparto : reparti) {
-            statement.executeUpdate("INSERT INTO reparti (id, name) VALUES ('%s', '%s')".formatted(0, reparto));
-        }
+        for (String reparto : reparti)
+            statement.executeUpdate("INSERT INTO reparti (id, name) VALUES (null, '%s')".formatted(reparto));
+
         System.out.println("Tabella reparti popolata con successo!");
 
         for (int i = 0; i < 100; i++) {
@@ -79,6 +81,48 @@ public class Main {
         }
         System.out.println("Tabella medici popolata con successo!");
 
+        for (int i = 0; i < 400; i++) {
+            var esito = randOf(2) == 1 ? "POSITIVO" : "NEGATIVO";
+            var res = statement.executeQuery("SELECT cf FROM pazienti ORDER BY RAND() LIMIT 1");
+            String cfPaz = null;
+
+            while (res.next())
+                cfPaz = res.getString("cf");
+
+            res = statement.executeQuery("SELECT cf FROM medici ORDER BY RAND() LIMIT 1");
+            String cfMed = null;
+
+            while (res.next())
+                cfMed = res.getString("cf");
+
+            statement.executeUpdate("INSERT INTO visite (id, date, esito, FK_cfPAZ, FK_cfMED) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDateRecent(), esito, cfPaz, cfMed));
+        }
+        System.out.println("Tabella visite popolata con successo!");
+
+        for (int i = 0; i < 150; i++) {
+            var res = statement.executeQuery("SELECT cf FROM pazienti ORDER BY RAND() LIMIT 1");
+            String cfPaz = null;
+
+            while (res.next())
+                cfPaz = res.getString("cf");
+
+            statement.executeUpdate("INSERT INTO ricoveri (id, date, durata, FK_idREP, FK_cfPAZ) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDateRecent(), randOf(30), randOf(6) + 1, cfPaz));
+        }
+        System.out.println("Tabella ricoveri popolata con successo!");
+
+        for (int i = 0; i < 600; i++) {
+            var esito = randOf(2) == 1 ? "POSITIVO" : "NEGATIVO";
+            var res = statement.executeQuery("SELECT cf FROM pazienti ORDER BY RAND() LIMIT 1");
+            String cfPaz = null;
+
+            while (res.next())
+                cfPaz = res.getString("cf");
+
+            statement.executeUpdate("INSERT INTO esami (id, date, tipo, esito, FK_cfPAZ) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDateRecent(), esami.get(randOf(14)) , esito, cfPaz));
+        }
+        System.out.println("Tabella esami popolata con successo!");
+
+        statement.close();
         System.out.printf("Esecuzione terminata in %sms.%n", (System.currentTimeMillis() - startTime));
     }
 
@@ -94,11 +138,29 @@ public class Main {
 
     private static String randDate() {
         Calendar start = Calendar.getInstance();
-        start.set(2010, 0, 1);
+        start.set(1965, Calendar.JANUARY, 1);
         long startMillis = start.getTimeInMillis();
 
         Calendar end = Calendar.getInstance();
-        end.set(2022, 11, 31);
+        end.set(2000, Calendar.DECEMBER, 31);
+        long endMillis = end.getTimeInMillis();
+
+        Random rand = new Random();
+        long randomMillisSinceEpoch = startMillis + (long)(rand.nextDouble()*(endMillis - startMillis));
+        Calendar randomDate = Calendar.getInstance();
+        randomDate.setTimeInMillis(randomMillisSinceEpoch);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return sdf.format(randomDate.getTime());
+    }
+
+    private static String randDateRecent() {
+        Calendar start = Calendar.getInstance();
+        start.set(2015, Calendar.JANUARY, 1);
+        long startMillis = start.getTimeInMillis();
+
+        Calendar end = Calendar.getInstance();
+        end.set(2022, Calendar.DECEMBER, 31);
         long endMillis = end.getTimeInMillis();
 
         Random rand = new Random();
