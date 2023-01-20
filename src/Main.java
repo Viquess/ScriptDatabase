@@ -61,7 +61,7 @@ public class Main {
         for (String reparto : reparti)
             statement.executeUpdate("INSERT INTO reparti (id, name) VALUES (null, '%s')".formatted(reparto));
 
-        System.out.println("Tabella reparti popolata con successo!");
+        System.out.println("\nTabella reparti popolata con successo!");
 
         for (int i = 0; i < 100; i++) {
             var num = randOf(44);
@@ -123,7 +123,9 @@ public class Main {
         System.out.println("Tabella esami popolata con successo!");
 
         statement.close();
-        System.out.printf("Esecuzione terminata in %sms.%n", (System.currentTimeMillis() - startTime));
+
+        var time = System.currentTimeMillis() - startTime;
+        System.out.printf("\nEsecuzione terminata in %s secondi (%sms).", (time/1000), time);
     }
 
     private static int randOf(int max) {
