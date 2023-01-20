@@ -77,7 +77,7 @@ public class Main {
             var name = names.get(randOf(44));
             var surname = surnames.get(randOf(24));
 
-            statement.executeUpdate("INSERT INTO medici (cf, name, surname, date, FK_idRep) VALUES ('%s', '%s', '%s', '%s', '%s')".formatted(randCf(), name, surname, randDate(), (randOf(6) + 1)));
+            statement.executeUpdate("INSERT INTO medici (cf, name, surname, date, FK_idRep) VALUES ('%s', '%s', '%s', '%s', '%s')".formatted(randCf(), name, surname, randDate(1965, 2000), (randOf(6) + 1)));
         }
         System.out.println("Tabella medici popolata con successo!");
 
@@ -95,7 +95,7 @@ public class Main {
             while (res.next())
                 cfMed = res.getString("cf");
 
-            statement.executeUpdate("INSERT INTO visite (id, date, esito, FK_cfPAZ, FK_cfMED) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDateRecent(), esito, cfPaz, cfMed));
+            statement.executeUpdate("INSERT INTO visite (id, date, esito, FK_cfPAZ, FK_cfMED) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDate(2015, 2022), esito, cfPaz, cfMed));
         }
         System.out.println("Tabella visite popolata con successo!");
 
@@ -106,7 +106,7 @@ public class Main {
             while (res.next())
                 cfPaz = res.getString("cf");
 
-            statement.executeUpdate("INSERT INTO ricoveri (id, date, durata, FK_idREP, FK_cfPAZ) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDateRecent(), randOf(30), randOf(6) + 1, cfPaz));
+            statement.executeUpdate("INSERT INTO ricoveri (id, date, durata, FK_idREP, FK_cfPAZ) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDate(2015, 2022), randOf(30), randOf(6) + 1, cfPaz));
         }
         System.out.println("Tabella ricoveri popolata con successo!");
 
@@ -118,7 +118,7 @@ public class Main {
             while (res.next())
                 cfPaz = res.getString("cf");
 
-            statement.executeUpdate("INSERT INTO esami (id, date, tipo, esito, FK_cfPAZ) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDateRecent(), esami.get(randOf(14)) , esito, cfPaz));
+            statement.executeUpdate("INSERT INTO esami (id, date, tipo, esito, FK_cfPAZ) VALUES (null, '%s', '%s', '%s', '%s')".formatted(randDate(2015, 2022), esami.get(randOf(14)) , esito, cfPaz));
         }
         System.out.println("Tabella esami popolata con successo!");
 
@@ -136,31 +136,13 @@ public class Main {
         return uuid.toString().replace("-", "").substring(0, 16);
     }
 
-    private static String randDate() {
+    private static String randDate(int yearStart, int yearEnd) {
         Calendar start = Calendar.getInstance();
-        start.set(1965, Calendar.JANUARY, 1);
+        start.set(yearStart, Calendar.JANUARY, 1);
         long startMillis = start.getTimeInMillis();
 
         Calendar end = Calendar.getInstance();
-        end.set(2000, Calendar.DECEMBER, 31);
-        long endMillis = end.getTimeInMillis();
-
-        Random rand = new Random();
-        long randomMillisSinceEpoch = startMillis + (long)(rand.nextDouble()*(endMillis - startMillis));
-        Calendar randomDate = Calendar.getInstance();
-        randomDate.setTimeInMillis(randomMillisSinceEpoch);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        return sdf.format(randomDate.getTime());
-    }
-
-    private static String randDateRecent() {
-        Calendar start = Calendar.getInstance();
-        start.set(2015, Calendar.JANUARY, 1);
-        long startMillis = start.getTimeInMillis();
-
-        Calendar end = Calendar.getInstance();
-        end.set(2022, Calendar.DECEMBER, 31);
+        end.set(yearEnd, Calendar.DECEMBER, 31);
         long endMillis = end.getTimeInMillis();
 
         Random rand = new Random();
