@@ -65,9 +65,9 @@ public class Main {
             System.out.println("\nTabella reparti popolata con successo!");
 
             for (int i = 0; i < 100; i++) {
-                var num = randOf(44);
+                var num = randOf(names.size() - 1);
                 var name = names.get(num);
-                var surname = surnames.get(randOf(24));
+                var surname = surnames.get(randOf(surnames.size() - 1));
                 var sex = num <= 20 ? 'm' : 'f';
 
                 statement.executeUpdate("INSERT INTO pazienti (cf, name, surname, sesso) VALUES ('%s', '%s', '%s', '%s')".formatted(randCf(), name, surname, sex));
@@ -75,8 +75,8 @@ public class Main {
             System.out.println("Tabella pazienti popolata con successo!");
 
             for (int i = 0; i < 25; i++) {
-                var name = names.get(randOf(44));
-                var surname = surnames.get(randOf(24));
+                var name = names.get(randOf(names.size() - 1));
+                var surname = surnames.get(randOf(surnames.size() - 1));
 
                 statement.executeUpdate("INSERT INTO medici (cf, name, surname, date, FK_idRep) VALUES ('%s', '%s', '%s', '%s', '%s')".formatted(randCf(), name, surname, randDate(1965, 2000), (randOf(6) + 1)));
             }
